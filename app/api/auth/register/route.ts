@@ -1,52 +1,80 @@
+// app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/mongodb'; // Adjust path as needed
-import User from '@/models/User'; // Adjust path as needed
+import { dbConnect } from '@/lib/mongodb';
+import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://serenity-peach.vercel.app',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export async function OPTIONS() {
+  // Preflight response: no body needed
+  return NextResponse.json(null, {
+    status: 204,
+    headers: CORS_HEADERS,
+  });
+}
 
 export async function POST(req: Request) {
   try {
-    const { username, email, age,gender, password } = await req.json();
+    // Echo back CORS headers on the real POST response
+    const { username, email, age, gender, password } = await req.json();
 
-    // Input Validation
+    // validation...
     if (!username || !email || !age || !gender || !password) {
-      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'All fields are required' },
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
-
     if (!/\S+@\S+\.\S+/.test(email)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
-
     if (password.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters long' },
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
 
     await dbConnect();
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+    if (await User.findOne({ email })) {
+      return NextResponse.json(
+        { error: 'User already exists' },
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the new user
     const newUser = await User.create({
       username,
       email,
-      age, // Make sure to save the age
+      age,
       gender,
       password: hashedPassword,
     });
 
-    return NextResponse.json({ success: true, user: newUser }, { status: 201 });
+    return NextResponse.json(
+      { success: true, user: newUser },
+      { status: 201, headers: CORS_HEADERS }
+    );
   } catch (error: any) {
     if (error.name === 'MongoServerError' && error.code === 11000) {
-      return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
-
-    console.error('Unexpected error during registration:', error);
-    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json(
+      { error: 'Registration failed' },
+      { status: 500, headers: CORS_HEADERS }
+    );
   }
 }

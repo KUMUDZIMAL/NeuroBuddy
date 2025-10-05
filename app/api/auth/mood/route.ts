@@ -25,15 +25,12 @@ export async function GET(req: NextRequest) {
 
     const userId = new Types.ObjectId(user._id);
 
-    // Aggregate the mood data by date
     const analysis = await Analysis.aggregate([
-      {
-        $match: { userId },
-      },
+      { $match: { userId } },
       {
         $project: {
           mood: 1,
-          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Convert timestamp to date
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
         },
       },
       {
@@ -42,12 +39,16 @@ export async function GET(req: NextRequest) {
           count: { $sum: 1 },
         },
       },
-      {
-        $sort: { "_id.date": 1 }, // Sort by date to display chronologically
-      },
+      { $sort: { "_id.date": 1 } },
     ]);
 
-    // Format the data into a more usable format for frontend
+    if (analysis.length === 0) {
+      return NextResponse.json(
+        { message: "No mood data found for this user", analysis: [] },
+        { status: 200 }
+      );
+    }
+
     const formattedAnalysis = analysis.map((entry) => ({
       date: entry._id.date,
       mood: entry._id.mood,
@@ -57,6 +58,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ analysis: formattedAnalysis });
   } catch (error) {
     console.error("Error fetching mood data:", error);
-    return NextResponse.json({ error: "Failed to fetch mood data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch mood data" },
+      { status: 500 }
+    );
   }
 }
+
