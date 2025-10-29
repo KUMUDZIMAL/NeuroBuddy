@@ -36,7 +36,7 @@ const navigation = [
   { name: "Assessment", href: "/assessment", icon: FileText },       // document icon
   { name: "Community", href: "/community", icon: Users },            // group icon
   { name: "Journel", href: "/journel", icon: BookOpen },             // open book icon
-  { name: "Articles", href: "/articles", icon: Article },            // document icon
+             // document icon
   { name: "Video Call", href: "/video-call", icon: Video },          // video camera icon
 ];
 

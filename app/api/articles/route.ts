@@ -5,12 +5,13 @@ export async function GET() {
     if (!process.env.NHS_API_KEY) {
       throw new Error('NHS API key is not configured');
     }
-
-    const response = await fetch('https://sandbox.api.service.nhs.uk/nhs-website-content/mental-health', {
+const nhs_api_key = "1c6a3a901c3249d9b12405a8422b7df7";
+    const response = await fetch('https://api.nhs.uk/mental-health', {
       headers: {
         'Accept': 'application/json',
-        'apikey': process.env.NHS_API_KEY
+        'apikey': nhs_api_key
       }
+      
     });
 
     if (!response.ok) {

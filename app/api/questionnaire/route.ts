@@ -308,7 +308,15 @@ import Groq from "groq-sdk";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function getGroqChatCompletion(previousAnswers: string[]): Promise<string> {
-  const basePrompt = `Act as a therapist conducting an initial assessment. Generate a single mental health-related question that helps identify potential mental health issues. The question should be appropriate based on the previous answers. Start with general questions and progressively ask more specific questions as you gather more information. Output must be in JSON format only, without any additional content. The JSON structure should be:
+  const basePrompt = `Act as a clinical neuropsychologist conducting an initial screening for neurological or neurodevelopmental disorders.
+Generate a single question related to attention, sensory processing, executive function, repetitive behaviors, impulse control, social communication, or other relevant neurological traits.
+The question should help in identifying possible signs of disorders such as ADHD, ASD, OCD, Dyslexia, or Tourette's syndrome.
+
+- Start with general questions about behavior, focus, or sensory patterns.
+- Progressively ask more specific questions based on previous answers.
+- The tone should remain supportive and non-diagnostic.
+
+Output must be in JSON format only, with no extra text. The JSON should follow this structure:
 {
   "question": "Your question here",
   "options": [
@@ -318,10 +326,10 @@ async function getGroqChatCompletion(previousAnswers: string[]): Promise<string>
     "Option 4"
   ]
 }
-No need for a correct option. Each option should provide a valid response related to mental health. Generate only one question per request.`;
+Each option should be a valid behavioral or experiential response (no correct/incorrect answers). Generate only one question per request.`;
 
   const contextMessage = previousAnswers.length > 0
-    ? `${basePrompt} Previous answers: ${JSON.stringify(previousAnswers)}. Based on these, generate an appropriate short and precise follow-up question, follow the instructions strictly.`
+    ? `${basePrompt} Previous answers: ${JSON.stringify(previousAnswers)}. Based on these, generate a short and relevant neurological follow-up question. Follow the format strictly.`
     : basePrompt;
 
   try {
@@ -355,17 +363,24 @@ No need for a correct option. Each option should provide a valid response relate
 async function getInsightsFromResponses(responses: {question: string, answer: string}[]): Promise<string> {
   const userResponsesText = responses.map(r => `Q: ${r.question}, A: ${r.answer}`).join("; ");
 
-  const contextMessage = `Based on the following user responses from a therapy session, analyze and provide a JSON object with potential mental health conditions the user might be experiencing. Include a confidence level as a percentage for each condition. The output should be in this format:
-  {
-    "potentialConditions": [
-      {
-        "condition": "condition name",
-        "confidence": 75 // Percentage between 0 and 100
-      }
-    ]
-  }
-  Provide at least 3 potential conditions, even if some have low confidence. Ensure the confidence levels are integers between 0 and 100.
-  User responses: ${userResponsesText}`;
+  const contextMessage = `You are a neuropsychologist analyzing user responses from a neurological assessment conversation.
+Based on these responses, identify possible neurological or neurodevelopmental conditions the user might be showing traits of.
+
+Return output strictly in JSON format:
+{
+  "potentialConditions": [
+    {
+      "condition": "condition name",
+      "confidence": 75
+    }
+  ]
+}
+
+- Include at least 3 potential conditions (e.g., ADHD, ASD, OCD, Dyslexia, Tourette’s, Sensory Processing Disorder, etc.)
+- Confidence should be an integer between 0 and 100.
+- Use your reasoning to estimate confidence levels based on behavioral indicators.
+
+User responses: ${userResponsesText}`;
 
   try {
     const response = await groq.chat.completions.create({
@@ -387,7 +402,7 @@ async function getInsightsFromResponses(responses: {question: string, answer: st
             return `${condition.condition} (Confidence: ${confidence}%)`;
           }).join('\n');
 
-          return `Potential mental health conditions based on your responses:\n${readableConditions}`;
+          return `Potential neurological or neurodevelopmental conditions based on your responses:\n${readableConditions}`;
         }
         
         throw new Error("Invalid structure for potential conditions");
@@ -409,7 +424,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { previousAnswer, responses } = body;
 
-    // Check if this is an analyze request
     if (responses) {
       if (!Array.isArray(responses)) {
         return NextResponse.json({ error: "Invalid responses: must be an array" }, { status: 400 });
@@ -418,7 +432,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ insights: userInsights, responses }, { status: 200 });
     }
 
-    // Default behavior is to return next question
     const questionData = await getGroqChatCompletion(previousAnswer ? [previousAnswer] : []);
     const parsedData = JSON.parse(questionData);
     return NextResponse.json(parsedData, { status: 200 });

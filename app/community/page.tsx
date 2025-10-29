@@ -60,7 +60,7 @@ export default function CommunityPage() {
 
     const fetchMsgs = async () => {
       try {
-        const res = await fetch(`https://serenity-backend-liart.vercel.app/api/community?roomId=${selectedRoom}`);
+        const res = await fetch(`/api/community?roomId=${selectedRoom}`);
         if (!res.ok) throw new Error();
         const data: Message[] = await res.json();
         if (!active) return;
@@ -89,7 +89,7 @@ export default function CommunityPage() {
   const createRoom = async () => {
     if (!newRoomName.trim()) return;
     try {
-      const res = await fetch("https://serenity-backend-liart.vercel.app/api/community", {
+      const res = await fetch("/api/community", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "CREATE_ROOM", name: newRoomName }),
@@ -104,7 +104,7 @@ export default function CommunityPage() {
 
   const joinRoom = async (roomId: string) => {
     try {
-      const res = await fetch("https://serenity-backend-liart.vercel.app/api/community", {
+      const res = await fetch("/api/community", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "UPDATE_PARTICIPANTS", roomId, change: 1 }),
@@ -120,7 +120,7 @@ export default function CommunityPage() {
   const leaveRoom = async () => {
     if (!selectedRoom) return;
     try {
-      const res = await fetch("https://serenity-backend-liart.vercel.app/api/community", {
+      const res = await fetch("/api/community", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "UPDATE_PARTICIPANTS", roomId: selectedRoom, change: -1 }),
@@ -137,7 +137,7 @@ export default function CommunityPage() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedRoom) return;
     try {
-      const res = await fetch("https://serenity-backend-liart.vercel.app/api/community", {
+      const res = await fetch("/api/community", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials:"include",

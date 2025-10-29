@@ -24,8 +24,11 @@ import {
   Check,
   Circle
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 export default function Dashboard() {
+  const router = useRouter();
   const [weeklyStreak, setWeeklyStreak] = useState(5);
   const [currentMood, setCurrentMood] = useState("positive");
 
@@ -192,7 +195,7 @@ export default function Dashboard() {
                 <p className="text-sm text-foreground">{insight}</p>
               </div>
             ))}
-            <Button className="w-full btn-therapy" size="sm">
+            <Button className="w-full btn-therapy" size="sm" onClick={() => router.push("/chatbot")}>
               <MessageCircle className="w-4 h-4 mr-2" />
               Chat with AI Therapist
             </Button>
