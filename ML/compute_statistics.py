@@ -107,16 +107,31 @@ def create_synthetic_profiles(base_statistics, eeg_columns):
             tourettes_mean[idx] *= 1.1
             tourettes_std[idx] *= 1.2
         
-        synthetic['Tourettes'] = {
-            'features': eeg_columns,
+    synthetic['Tourettes'] = {
             'mean': tourettes_mean.tolist(),
             'std': tourettes_std.tolist(),
             'count': 0,
-            'synthetic': True,
-            'base': 'OCD with motor control modifications'
+            'features': eeg_columns
         }
-        print("  [OK] Tourettes (synthetic)")
+        
+    # ADHD - Frontal slowing (increased theta, decreased beta)
+    adhd_mean = np.array(healthy['mean']).copy()
+    adhd_std = np.array(healthy['std']).copy()
+    theta_indices = [i for i, col in enumerate(eeg_columns) if 'theta' in col.lower() and ('f' in col.lower() or 'fp' in col.lower())]
+    beta_indices = [i for i, col in enumerate(eeg_columns) if 'beta' in col.lower() and ('f' in col.lower() or 'fp' in col.lower())]
     
+    for idx in theta_indices:
+        adhd_mean[idx] *= 1.25  # Increased frontal theta
+    for idx in beta_indices:
+        adhd_mean[idx] *= 0.85  # Decreased frontal beta
+        
+    synthetic['ADHD'] = {
+        'mean': adhd_mean.tolist(),
+        'std': adhd_std.tolist(),
+        'count': 0,
+        'features': eeg_columns
+    }
+        
     return synthetic
 
 def add_adhd_statistics(statistics, eeg_columns):
@@ -187,7 +202,7 @@ def main():
     print("\nDisorder profiles created:")
     for disorder, stats in statistics.items():
         synthetic_tag = " (synthetic)" if stats.get('synthetic') else ""
-        print(f"  • {disorder}: {stats['count']} samples{synthetic_tag}")
+        print(f"  • {disorder}: {stats.get('count', 0)} samples{synthetic_tag}")
 
 if __name__ == "__main__":
     main()

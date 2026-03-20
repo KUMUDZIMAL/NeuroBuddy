@@ -2,9 +2,9 @@
   "comment": "Maps questionnaire disorder outputs to EEG dataset disorder labels for synthetic data generation",
   "mappings": {
     "ADHD": {
-      "primary": "ADHD_raw_electrodes",
+      "primary": "ADHD",
       "fallback": "Healthy control",
-      "note": "Uses raw electrode data (different feature space)"
+      "note": "Synthetic profile based on healthy control with altered frontal theta/beta"
     },
     "Depression": {
       "primary": "Depressive disorder",
@@ -29,6 +29,10 @@
     "Schizophrenia": {
       "primary": "Schizophrenia",
       "fallback": null
+    },
+    "Autism": {
+      "primary": "ASD",
+      "fallback": "Healthy control"
     },
     "ASD": {
       "primary": "ASD",
