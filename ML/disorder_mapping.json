@@ -1,0 +1,88 @@
+{
+  "comment": "Maps questionnaire disorder outputs to EEG dataset disorder labels for synthetic data generation",
+  "mappings": {
+    "ADHD": {
+      "primary": "ADHD_raw_electrodes",
+      "fallback": "Healthy control",
+      "note": "Uses raw electrode data (different feature space)"
+    },
+    "Depression": {
+      "primary": "Depressive disorder",
+      "fallback": null
+    },
+    "Anxiety": {
+      "primary": "Social anxiety disorder",
+      "fallback": "Panic disorder"
+    },
+    "Bipolar": {
+      "primary": "Bipolar disorder",
+      "fallback": null
+    },
+    "OCD": {
+      "primary": "Obsessive compulsitve disorder",
+      "fallback": null
+    },
+    "PTSD": {
+      "primary": "Posttraumatic stress disorder",
+      "fallback": "Acute stress disorder"
+    },
+    "Schizophrenia": {
+      "primary": "Schizophrenia",
+      "fallback": null
+    },
+    "ASD": {
+      "primary": "ASD",
+      "fallback": "Healthy control",
+      "note": "Synthetic profile based on healthy control"
+    },
+    "Dyslexia": {
+      "primary": "Dyslexia",
+      "fallback": "Healthy control",
+      "note": "Synthetic profile based on healthy control"
+    },
+    "Tourettes": {
+      "primary": "Tourettes",
+      "fallback": "Obsessive compulsitve disorder",
+      "note": "Synthetic profile based on OCD"
+    },
+    "Addiction": {
+      "primary": "Behavioral addiction disorder",
+      "fallback": "Alcohol use disorder"
+    },
+    "Stress": {
+      "primary": "Acute stress disorder",
+      "fallback": "Adjustment disorder"
+    },
+    "Panic": {
+      "primary": "Panic disorder",
+      "fallback": "Social anxiety disorder"
+    },
+    "Healthy": {
+      "primary": "Healthy control",
+      "fallback": null
+    }
+  },
+  "confidence_variance_mapping": {
+    "comment": "Maps confidence percentages to variance multipliers for data generation",
+    "90-100": {
+      "multiplier": 0.5,
+      "description": "Very high confidence - values close to mean"
+    },
+    "80-89": {
+      "multiplier": 0.75,
+      "description": "High confidence - slight variance"
+    },
+    "70-79": {
+      "multiplier": 1.0,
+      "description": "Moderate confidence - normal variance"
+    },
+    "60-69": {
+      "multiplier": 1.25,
+      "description": "Low-moderate confidence - increased variance"
+    },
+    "50-59": {
+      "multiplier": 1.5,
+      "description": "Low confidence - high variance, mixed signals"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mental Disorder Prediction</title>
+</head>
+<body style="font-family:Arial; margin:40px;">
+  <h2>🧠 Mental Disorder Prediction</h2>
+  <form action="/predict" method="post">
+    <label>Enter your age:</label>
+    <input type="number" name="age" required><br><br>
+
+    {% for key, question in questions.items() %}
+      <label>{{ question }}</label><br>
+      <input type="radio" name="{{ key }}" value="Yes" required> Yes
+      <input type="radio" name="{{ key }}" value="No"> No
+      <br><br>
+    {% endfor %}
+
+    <button type="submit">Predict</button>
+  </form>
+</body>
+</html>

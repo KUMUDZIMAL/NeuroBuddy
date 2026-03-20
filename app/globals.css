@@ -1,0 +1,321 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NeuroBuddy Design System - Therapy-focused, ADHD-friendly */
+
+@layer base {
+  :root {
+    /* Therapy-inspired calming base colors */
+    --background: 247 51% 99%;
+    --foreground: 230 25% 18%;
+
+    /* Card and surface colors */
+    --card: 0 0% 100%;
+    --card-foreground: 230 25% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 25% 18%;
+
+    /* Primary therapy blue - calming yet professional */
+    --primary: 218 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 218 85% 75%;
+
+    /* Secondary calm purple */
+    --secondary: 264 45% 95%;
+    --secondary-foreground: 264 50% 25%;
+
+    /* Muted tones for secondary content */
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 15% 45%;
+
+    /* Accent dopamine green for rewards */
+    --accent: 150 65% 92%;
+    --accent-foreground: 150 85% 25%;
+    --dopamine-green: 150 85% 55%;
+    --dopamine-orange: 30 95% 60%;
+
+    /* Success, warning, and error states */
+    --success: 150 85% 55%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 30 95% 60%;
+    --warning-foreground: 30 40% 15%;
+    
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 220 20% 90%;
+    --input: 220 20% 96%;
+    --ring: 218 85% 65%;
+
+    /* Gradients for modern therapy feel */
+    --gradient-therapy: linear-gradient(135deg, hsl(218 85% 65%), hsl(264 65% 75%));
+    --gradient-calm: linear-gradient(180deg, hsl(200 30% 98%), hsl(220 20% 96%));
+    --gradient-celebration: linear-gradient(135deg, hsl(150 85% 55%), hsl(30 95% 60%));
+    --gradient-focus: linear-gradient(135deg, hsl(218 85% 65%), hsl(190 85% 65%));
+
+    /* Shadows with therapy theme */
+    --shadow-therapy: 0 10px 30px -10px hsl(218 85% 65% / 0.2);
+    --shadow-celebration: 0 10px 30px -10px hsl(150 85% 55% / 0.3);
+    --shadow-focus: 0 5px 20px -5px hsl(218 85% 65% / 0.15);
+
+    /* Animations */
+    --transition-therapy: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bounce-celebration: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark therapy theme - calming night mode */
+    --background: 220 25% 8%;
+    --foreground: 220 15% 92%;
+
+    --card: 220 25% 10%;
+    --card-foreground: 220 15% 92%;
+
+    --popover: 220 25% 10%;
+    --popover-foreground: 220 15% 92%;
+
+    /* Primary therapy blue adjusted for dark */
+    --primary: 218 85% 70%;
+    --primary-foreground: 220 25% 8%;
+    --primary-glow: 218 85% 80%;
+
+    /* Secondary purple for dark mode */
+    --secondary: 264 25% 15%;
+    --secondary-foreground: 264 35% 85%;
+
+    --muted: 220 20% 12%;
+    --muted-foreground: 220 15% 65%;
+
+    /* Accent colors adjusted for dark */
+    --accent: 150 45% 15%;
+    --accent-foreground: 150 65% 85%;
+    --dopamine-green: 150 75% 65%;
+    --dopamine-orange: 30 85% 70%;
+
+    /* States for dark mode */
+    --success: 150 75% 65%;
+    --success-foreground: 220 25% 8%;
+    
+    --warning: 30 85% 70%;
+    --warning-foreground: 30 40% 15%;
+    
+    --destructive: 0 65% 65%;
+    --destructive-foreground: 220 25% 8%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 12%;
+    --ring: 218 85% 70%;
+
+    /* Dark mode gradients */
+    --gradient-therapy: linear-gradient(135deg, hsl(218 85% 70%), hsl(264 65% 75%));
+    --gradient-calm: linear-gradient(180deg, hsl(220 25% 8%), hsl(220 20% 12%));
+    --gradient-celebration: linear-gradient(135deg, hsl(150 75% 65%), hsl(30 85% 70%));
+    --gradient-focus: linear-gradient(135deg, hsl(218 85% 70%), hsl(190 85% 75%));
+
+    /* Sidebar dark theme */
+    --sidebar-background: 220 25% 6%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 218 85% 70%;
+    --sidebar-primary-foreground: 220 25% 6%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 220 20% 14%;
+    --sidebar-ring: 218 85% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    transition: var(--transition-therapy);
+  }
+}
+
+@layer components {
+  /* Therapy button variants */
+  .btn-therapy {
+    /* Use CSS variables (H S L triplets defined in :root) for the gradient so Tailwind
+       doesn't need generated utility classes like `from-primary` / `to-primary-glow`. */
+    background-image: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    color: hsl(var(--primary-foreground));
+
+    /* keep the Tailwind utility behaviors that don't require custom color tokens */
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply hover:scale-105 active:scale-95;
+
+    /* optional: use your radius variable */
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+  }
+
+  /* Replaced gradient tokens with CSS-variable gradient to avoid missing Tailwind classes */
+  .btn-celebration {
+    background-image: linear-gradient(90deg, hsl(var(--success)), hsl(var(--warning)));
+    color: white;
+
+    @apply shadow-lg hover:shadow-2xl transition-all duration-300;
+    @apply hover:scale-105 active:scale-95;
+
+    /* keep padding/radius consistent */
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    /* if you have a `pulse` keyframe, it will animate; otherwise remove animation or define it */
+    animation: pulse 2s infinite;
+  }
+
+  .btn-calm {
+    /* replaced bg-secondary/50 and text-secondary-foreground */
+    background-color: hsl(var(--secondary) / 0.5);
+    backdrop-filter: blur(6px); /* equivalent to backdrop-blur-sm */
+    color: hsl(var(--secondary-foreground));
+    @apply border border-border hover:opacity-95;
+    @apply transition-all duration-300;
+    border-radius: var(--radius);
+    padding: 0.4rem 0.9rem;
+  }
+
+  /* Progress animations */
+  .progress-celebration {
+    animation: progressCelebration 0.8s var(--bounce-celebration);
+  }
+
+  /* Focus tracking visualization */
+  .focus-pulse {
+    animation: focusPulse 2s ease-in-out infinite;
+  }
+
+  /* Habit completion sparkle */
+  .sparkle-animation {
+    animation: sparkle 1.2s ease-out;
+  }
+
+  /* Chat message bubbles */
+  .chat-user {
+    /* replace bg-primary text-primary-foreground (Tailwind classes would be missing) */
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 1rem;
+    border-bottom-right-radius: 0.25rem;
+    @apply shadow-md;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .chat-ai {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border-radius: 1rem;
+    border-bottom-left-radius: 0.25rem;
+    border: 1px solid hsl(var(--border));
+    @apply shadow-sm;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* EEG visualization */
+  .eeg-wave {
+    animation: eegWave 3s ease-in-out infinite;
+  }
+
+  /* Mood indicator - use CSS variable gradients and explicit borders to avoid Tailwind color tokens */
+  .mood-positive {
+    background-image: linear-gradient(90deg, hsl(var(--success) / 0.2), hsl(var(--warning) / 0.2));
+    border-left: 4px solid hsl(var(--success));
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+  }
+
+  .mood-neutral {
+    background-image: linear-gradient(90deg, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.3));
+    border-left: 4px solid hsl(var(--muted-foreground));
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+  }
+
+  .mood-negative {
+    background-image: linear-gradient(90deg, hsl(var(--destructive) / 0.2), hsl(var(--destructive) / 0.1));
+    border-left: 4px solid hsl(var(--destructive));
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  @keyframes progressCelebration {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes focusPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  @keyframes sparkle {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes eegWave {
+    0%, 100% { transform: translateY(0px); }
+    25% { transform: translateY(-4px); }
+    75% { transform: translateY(4px); }
+  }
+
+  /* Gradient utilities */
+  .gradient-therapy {
+    background: var(--gradient-therapy);
+  }
+
+  .gradient-calm {
+    background: var(--gradient-calm);
+  }
+
+  .gradient-celebration {
+    background: var(--gradient-celebration);
+  }
+
+  .gradient-focus {
+    background: var(--gradient-focus);
+  }
+
+  /* Shadow utilities */
+  .shadow-therapy {
+    box-shadow: var(--shadow-therapy);
+  }
+
+  .shadow-celebration {
+    box-shadow: var(--shadow-celebration);
+  }
+
+  .shadow-focus {
+    box-shadow: var(--shadow-focus);
+  }
+}
