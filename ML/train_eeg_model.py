@@ -9,7 +9,7 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from sklearn.metrics import classification_report, accuracy_score
 import joblib
 
 # Paths
@@ -75,12 +75,12 @@ print(f"Test samples: {len(X_test)}")
 # Train Random Forest model
 print("\nTraining Random Forest Classifier...")
 model = RandomForestClassifier(
-    n_estimators=200,       # Number of trees
-    max_depth=15,           # Maximum depth of trees
-    min_samples_split=5,    # Minimum samples to split a node
-    min_samples_leaf=2,     # Minimum samples at leaf node
+    n_estimators=200,
+    max_depth=15,
+    min_samples_split=5,
+    min_samples_leaf=2,
     random_state=42,
-    n_jobs=-1,              # Use all CPU cores
+    n_jobs=-1,
     verbose=1
 )
 

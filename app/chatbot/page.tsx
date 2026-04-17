@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, FormEvent, ChangeEvent, ReactNode } from "react";
-import { Send } from "lucide-react";
+import { Send, Brain, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -86,7 +86,13 @@ export default function ChatbotPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [neuroHistory, setNeuroHistory] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const history = localStorage.getItem("neuroHistory");
+    if (history) setNeuroHistory(JSON.parse(history));
+  }, []);
 
   const scrollToBottom = (): void => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,7 +102,7 @@ export default function ChatbotPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -109,8 +115,12 @@ export default function ChatbotPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials:"include",
-        body: JSON.stringify({ message: input }),
+        credentials: "include",
+        body: JSON.stringify({
+          message: userMessage.content,
+          neuroHistory: neuroHistory,
+          history: messages.slice(-5)
+        }),
       });
 
       const reader = response.body?.getReader();
@@ -152,6 +162,8 @@ export default function ChatbotPage() {
     }
   };
 
+  const activeNamespace = neuroHistory.length > 0 ? neuroHistory[0].disorder : "General";
+
   return (
     <div className="flex items-center justify-center w-screen h-screen p-6">
       <div className="absolute inset-0">
@@ -166,8 +178,16 @@ export default function ChatbotPage() {
         <CardHeader>
           <Avatar initials="AI" className="bg-purple-500" />
           <CardTitle className="font-outfitLight text-slate-800">Your AI-Assistant</CardTitle>
+          <div className="ml-auto flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+            <ShieldCheck size={12} /> Knowledge Base: {activeNamespace}
+          </div>
         </CardHeader>
         <CardContent>
+          {messages.length === 0 && (
+            <div className="text-center mt-12 text-slate-400 text-sm italic">
+              "Hello! I can help you with coping techniques based on your EEG data."
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={index}
@@ -221,19 +241,13 @@ export default function ChatbotPage() {
         </CardContent>
         <CardFooter>
           <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-            {/* <Button className="flex items-center p-1.5 bg-gray-100 rounded-full hover:bg-gray-200">
-              <i className="fas fa-paperclip"></i>
-            </Button>
-            <Button className="flex items-center p-1.5 bg-gray-100 rounded-full hover:bg-gray-200">
-              <i className="fas fa-microphone"></i>
-            </Button> */}
             <Input
               type="text"
               value={input}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setInput(e.target.value)
               }
-              placeholder="Type a message..."
+              placeholder={`Ask about managing ${activeNamespace}...`}
               className="flex-grow p-3 text-gray-900 bg-white border-gray-300 rounded-full bg-opacity-70 hover:border-gray-400 focus:ring-2 focus:ring-purple-500 font-outfitRegular"
             />
             <Button

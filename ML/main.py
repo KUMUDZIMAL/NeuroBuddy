@@ -7,20 +7,25 @@ import json
 import os
 from scipy.signal import welch
 from scipy.integrate import trapezoid
+from sentence_transformers import SentenceTransformer
 
 app = Flask(__name__)
 CORS(app)
 
-# -------------------------
-# Load ML model
-# -------------------------
+app = Flask(__name__)
+CORS(app)
+
+# --- Load ML & Embedding Models ---
 try:
     model = joblib.load("eeg_disorder_model.pkl")
     label_encoder = joblib.load("label_encoder.pkl")
     model_loaded = True
     # The model remembers exactly which column names it was trained on
     model_features = model.feature_names_in_.tolist() if hasattr(model, 'feature_names_in_') else None
+    # Embedding model for RAG
+    embed_model = SentenceTransformer('all-MiniLM-L6-v2')
     print(f"✅ Model loaded. Expecting {model.n_features_in_} features.")
+    print("✅ Embedding model loaded")
 except Exception as e:
     model_loaded = False
     print(f"⚠️ Model error: {e}")
@@ -340,6 +345,14 @@ def get_variance_multiplier(confidence, confidence_mapping):
     else:
         return confidence_mapping.get('50-59', {}).get('multiplier', 1.5)
 
+# 🔥 NEW: Endpoint for Chatbot to get Vector Embeddings
+@app.route('/get_embedding', methods=['POST'])
+def get_embedding():
+    data = request.json
+    text = data.get('text', '')
+    if not text: return jsonify({"error": "No text provided"}), 400
+    vector = embed_model.encode(text).tolist()
+    return jsonify({"vector": vector})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

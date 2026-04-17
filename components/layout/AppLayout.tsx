@@ -15,7 +15,7 @@ import {
   Zap,
   BookOpen, 
   FileText as Article,
-  Users, 
+  Users,
   Video,
   Sparkles
 } from "lucide-react";
