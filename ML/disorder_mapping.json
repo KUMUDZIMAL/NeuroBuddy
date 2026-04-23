@@ -64,6 +64,80 @@
     "Healthy": {
       "primary": "Healthy control",
       "fallback": null
+    },
+    "Sensory Processing Disorder": {
+      "primary": "ASD",
+      "fallback": "Healthy control",
+      "note": "Sensory issues common in ASD"
+    },
+    "Autism Spectrum Disorder (ASD)": {
+      "primary": "ASD",
+      "fallback": "Healthy control"
+    },
+    "Autism Spectrum Disorder": {
+      "primary": "ASD",
+      "fallback": "Healthy control"
+    },
+    "Mind-Wandering subtype of ADHD or ASD": {
+      "primary": "ADHD",
+      "fallback": "ASD"
+    },
+    "Divergent thinking or Creative Type": {
+      "primary": "ADHD",
+      "fallback": "Healthy control",
+      "note": "Associated with ADHD traits"
+    },
+    "Major Depressive Disorder": {
+      "primary": "Depressive disorder",
+      "fallback": null
+    },
+    "Generalized Anxiety Disorder": {
+      "primary": "Social anxiety disorder",
+      "fallback": "Panic disorder"
+    },
+    "Social Anxiety Disorder": {
+      "primary": "Social anxiety disorder",
+      "fallback": "Panic disorder"
+    },
+    "Attention Deficit Hyperactivity Disorder": {
+      "primary": "ADHD",
+      "fallback": "Healthy control"
+    },
+    "Post-Traumatic Stress Disorder": {
+      "primary": "Posttraumatic stress disorder",
+      "fallback": "Acute stress disorder"
+    },
+    "Obsessive Compulsive Disorder": {
+      "primary": "Obsessive compulsitve disorder",
+      "fallback": null
+    },
+    "Bipolar Disorder": {
+      "primary": "Bipolar disorder",
+      "fallback": null
+    },
+    "Panic Disorder": {
+      "primary": "Panic disorder",
+      "fallback": "Social anxiety disorder"
+    },
+    "Alcohol Addiction": {
+      "primary": "Alcohol use disorder",
+      "fallback": "Behavioral addiction disorder"
+    },
+    "Drug Addiction": {
+      "primary": "Behavioral addiction disorder",
+      "fallback": "Alcohol use disorder"
+    },
+    "Behavioral Addiction": {
+      "primary": "Behavioral addiction disorder",
+      "fallback": "Alcohol use disorder"
+    },
+    "Acute Stress": {
+      "primary": "Acute stress disorder",
+      "fallback": "Adjustment disorder"
+    },
+    "Adjustment Disorder": {
+      "primary": "Adjustment disorder",
+      "fallback": "Acute stress disorder"
     }
   },
   "confidence_variance_mapping": {

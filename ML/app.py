@@ -11,7 +11,7 @@ CORS(app, supports_credentials=True,
      origins=["http://localhost:3000", "http://127.0.0.1:3000"])
 
 MODEL_PATH = "mental_disorder_model.pkl"
-DATA_PATH = "Mental disorder symptoms (1).xlsx"
+DATA_PATH = r"C:\Users\Tanzil Sayed\Documents\Projs\NeuroBuddy-main (2)\NeuroBuddy-main\ML\Mental disorder symptoms (1).xlsx"
 
 
 # 🧠 Train model if not available
