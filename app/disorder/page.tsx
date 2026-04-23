@@ -12,7 +12,7 @@ import { MessageCircle } from "lucide-react";
 export default function DisorderDetection() {
   const router = useRouter();
   const [age, setAge] = useState<number>(0);
-  const [answers, setAnswers] = useState<{ [key: number]: boolean }>({});
+  const [answers, setAnswers] = useState<{ [key: number]: number }>({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ export default function DisorderDetection() {
     "Do you feel tired almost all the time?",
   ];
 
-  const handleToggle = (index: number, value: boolean) => {
+  const handleToggle = (index: number, value: number) => {
     setAnswers((prev) => ({ ...prev, [index]: value }));
   };
 
@@ -56,12 +56,16 @@ export default function DisorderDetection() {
     setLoading(true);
     setResult(null);
 
+    const mappedAnswers = questions.reduce((acc, _, i) => {
+      const sliderVal = answers[i] || 0;
+      // 0, 1 -> "no", 2, 3 -> "yes"
+      acc[`q${i + 1}`] = sliderVal >= 2 ? "yes" : "no";
+      return acc;
+    }, {} as Record<string, string>);
+
     const payload = {
       age,
-      ...questions.reduce((acc, _, i) => {
-        acc[`q${i + 1}`] = answers[i] ? "yes" : "no";
-        return acc;
-      }, {} as Record<string, string>),
+      ...mappedAnswers
     };
 
     try {
@@ -72,27 +76,47 @@ export default function DisorderDetection() {
       });
 
       const data = await res.json();
-      setResult(data.result || "⚠️ No result from server");
       
-      // Save diagnosis to localStorage
-      try {
-        if (data.result && !data.result.includes("⚠️")) {
-          // Parse the disorder from result (assuming format like "🧠 Depression" or "✅ Healthy")
-          const disorderMatch = data.result.match(/(?:🧠|✅)\s*(.+)/);
-          const disorder = disorderMatch ? disorderMatch[1].trim() : data.result;
-          
-          // For the detailed survey, we assign a fixed high confidence
-          // since it's based on 28 questions
+      let rawResult = data.result || "⚠️ No result from server";
+      
+      if (rawResult && !rawResult.includes("⚠️")) {
+        const match = rawResult.match(/(?:🧠|✅)\s*(.+)/);
+        const rawDisorder = match ? match[1].trim() : rawResult;
+        
+        const mapDisorderName = (name: string) => {
+          const lowerName = name.toLowerCase();
+          if (lowerName === "mdd") return "Major Depressive Disorder (MDD)";
+          if (lowerName === "asd") return "Autism Spectrum Disorder (ASD)";
+          if (lowerName === "bipolar") return "Bipolar Disorder (BD)";
+          if (lowerName === "anexiety" || lowerName === "anxiety") return "Anxiety Disorder";
+          if (lowerName === "ptsd") return "Post-Traumatic Stress Disorder (PTSD)";
+          if (lowerName === "sleeping disorder") return "Sleeping Disorder";
+          if (lowerName === "psychotic deprission" || lowerName === "psychotic depression") return "Psychotic Depression";
+          if (lowerName === "eating disorder") return "Eating Disorder";
+          if (lowerName === "adhd") return "Attention Deficit Hyperactivity Disorder (ADHD)";
+          if (lowerName === "pdd") return "Persistent Depressive Disorder (PDD)";
+          if (lowerName === "ocd") return "Obsessive-Compulsive Disorder (OCD)";
+          if (lowerName === "loneliness") return "Loneliness";
+          return name;
+        };
+
+        const formattedDisorder = mapDisorderName(rawDisorder);
+        const prefix = rawResult.includes("🧠") ? "🧠 " : (rawResult.includes("✅") ? "✅ " : "");
+        setResult(prefix + formattedDisorder);
+        
+        try {
           const diagnosisData = {
-            [disorder]: 85, // High confidence from detailed survey
+            [formattedDisorder]: 85,
             timestamp: Date.now()
           };
           
           localStorage.setItem('disorder_diagnosis', JSON.stringify(diagnosisData));
           console.log('Saved disorder diagnosis to localStorage:', diagnosisData);
+        } catch (parseError) {
+          console.error('Error saving diagnosis to localStorage:', parseError);
         }
-      } catch (parseError) {
-        console.error('Error saving diagnosis to localStorage:', parseError);
+      } else {
+        setResult(rawResult);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -123,17 +147,30 @@ export default function DisorderDetection() {
             />
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-6">
             {questions.map((q, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm"
+                className="flex flex-col bg-white p-4 rounded-xl shadow-sm border border-slate-100"
               >
-                <span className="text-sm font-medium text-gray-700 w-4/5">{q}</span>
-                <Switch
-                  checked={answers[i] || false}
-                  onCheckedChange={(v) => handleToggle(i, v)}
-                />
+                <span className="text-[15px] font-medium text-slate-800 mb-4">{q}</span>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="3"
+                    step="1"
+                    value={answers[i] || 0}
+                    onChange={(e) => handleToggle(i, Number(e.target.value))}
+                    className="w-full accent-indigo-600"
+                  />
+                  <div className="flex justify-between text-xs text-slate-500 font-medium px-1">
+                    <span>No</span>
+                    <span>Rarely</span>
+                    <span>Sometimes</span>
+                    <span>Very Often</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

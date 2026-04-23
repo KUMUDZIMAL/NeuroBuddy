@@ -264,6 +264,8 @@ export default function MentalHealthQuestionnaire() {
   const [responses, setResponses] = useState<{question: string, answer: string}[]>([]);
   const [insights, setInsights] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [totalQuestions, setTotalQuestions] = useState(5);
 
   const fetchNextQuestion = async (previousAnswer?: string) => {
     setIsLoading(true);
@@ -348,8 +350,10 @@ export default function MentalHealthQuestionnaire() {
   };
 
   useEffect(() => {
-    fetchNextQuestion();
-  }, []);
+    if (hasStarted) {
+      fetchNextQuestion();
+    }
+  }, [hasStarted]);
 
   const handleAnswer = (answer: string) => {
     if (currentQuestion) {
@@ -360,8 +364,7 @@ export default function MentalHealthQuestionnaire() {
 
       setResponses(newResponses);
 
-      // If you want to limit the number of questions, adjust this condition
-      if (newResponses.length >= 5) {
+      if (newResponses.length >= totalQuestions) {
         analyzeResponses(newResponses);
         return;
       }
@@ -371,9 +374,9 @@ export default function MentalHealthQuestionnaire() {
   };
 
   const restartQuestionnaire = () => {
+    setHasStarted(false);
     setResponses([]);
     setInsights(null);
-    fetchNextQuestion();
   };
 
   if (isLoading) {
@@ -410,8 +413,52 @@ export default function MentalHealthQuestionnaire() {
           <div className="whitespace-pre-line text-gray-700 mb-6 font-outfitRegular">
             {insights}
           </div>
-          <Button onClick={restartQuestionnaire} className="w-full bg-violet-400 hover:bg-violet-500 text-white font-outfitRegular">
-            Restart Questionnaire
+          <div className="flex flex-col gap-3">
+            <Button onClick={restartQuestionnaire} className="w-full bg-violet-400 hover:bg-violet-500 text-white font-outfitRegular">
+              Restart Questionnaire
+            </Button>
+            <Button onClick={() => window.location.href = "/"} variant="outline" className="w-full border-violet-400 text-violet-600 hover:bg-violet-50 font-outfitRegular">
+              Go to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="absolute inset-0">
+          <div className="absolute w-96 h-96 bg-blue-400/30 rounded-full blur-3xl -top-20 -left-20"></div>
+          <div className="absolute w-96 h-96 bg-purple-400/30 rounded-full blur-3xl top-40 left-60"></div>
+          <div className="absolute w-80 h-80 bg-blue-500/30 rounded-full blur-3xl bottom-0 right-20"></div>
+          <div className="absolute w-72 h-72 bg-purple-500/30 rounded-full blur-3xl -right-20 top-10"></div>
+          <div className="absolute w-80 h-80 bg-orange-300/30 rounded-full blur-3xl top-0 right-60"></div>
+          <div className="absolute w-80 h-80 bg-orange-300/30 rounded-full blur-3xl top-20 left-20"></div>
+        </div>
+        <div className="bg-white/60 shadow-md rounded-2xl p-10 max-w-xl w-full z-10 text-center">
+          <h2 className="text-2xl font-copernicusMedium mb-4 text-slate-800">
+            Start Quick Assessment
+          </h2>
+          <p className="text-gray-600 mb-6 font-outfitRegular">
+            How many questions would you like to answer? A higher number will give a more accurate AI diagnosis.
+          </p>
+          <div className="mb-8 flex flex-col items-center">
+            <input 
+              type="range" 
+              min="5" 
+              max="15" 
+              value={totalQuestions}
+              onChange={(e) => setTotalQuestions(Number(e.target.value))}
+              className="w-full max-w-xs accent-violet-600"
+            />
+            <div className="mt-4 text-3xl font-bold text-violet-600">
+              {totalQuestions} <span className="text-lg text-gray-500 font-normal">Questions</span>
+            </div>
+          </div>
+          <Button onClick={() => setHasStarted(true)} className="w-full bg-violet-600 hover:bg-violet-700 text-white p-6 rounded-xl font-outfitRegular text-lg">
+            Begin Assessment
           </Button>
         </div>
       </div>
@@ -449,7 +496,7 @@ export default function MentalHealthQuestionnaire() {
           ))}
         </div>
         <div className="mt-4 text-sm text-gray-500 font-outfitRegular">
-          Question {responses.length + 1} of 5
+          Question {responses.length + 1} of {totalQuestions}
         </div>
       </div>
     </div>

@@ -14,10 +14,10 @@ import {
   FileText, 
   Zap,
   BookOpen, 
-  FileText as Article,
   Users,
   Video,
-  Sparkles
+  Sparkles,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -117,19 +117,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
             })}
           </nav>
 
-          {/* Footer */}
-          {!collapsed && (
-            <div className="p-4 border-t border-sidebar-border">
-              <div className="text-xs text-sidebar-foreground/60 text-center">
-                <p>Supporting your mental wellness journey</p>
-                <div className="mt-2 flex justify-center space-x-1">
-                  <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                  <div className="w-2 h-2 bg-warning rounded-full animate-pulse delay-75" />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-150" />
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="p-4 border-t border-sidebar-border">
+            <button
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                window.location.href = "/auth/login";
+              }}
+              className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium w-full text-sidebar-foreground hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
+            >
+              <LogOut className={cn("w-5 h-5", collapsed ? "" : "mr-3")} />
+              {!collapsed && <span>Logout</span>}
+            </button>
+          </div>
         </div>
       )}
 
