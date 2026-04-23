@@ -12,9 +12,6 @@ from sentence_transformers import SentenceTransformer
 app = Flask(__name__)
 CORS(app)
 
-app = Flask(__name__)
-CORS(app)
-
 # --- Load ML & Embedding Models ---
 try:
     model = joblib.load(r"C:\Users\Tanzil Sayed\Documents\Projs\NeuroBuddy-main (2)\NeuroBuddy-main\ML\eeg_disorder_model.pkl")

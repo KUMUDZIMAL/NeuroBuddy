@@ -24,5 +24,5 @@ export async function middleware(request: NextRequest) {
 
 // Protect specific routes
 export const config = {
-  matcher: ['/dashboard', '/Input1', '/Input2'], // Protect these routes
+  matcher: ['/dashboard', '/Input1', '/Input2', '/testChoice', '/assessment', '/disorder'], // Protect these routes
 };

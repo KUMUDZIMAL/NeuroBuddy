@@ -1,54 +1,36 @@
 import { NextResponse } from 'next/server';
+import { dbConnect } from '@/lib/mongodb';
+import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { MongoClient } from 'mongodb';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json(); // Parse JSON from request body
-    const { token, newPassword } = body;
+    const { token, newPassword } = await req.json();
 
     if (!token || !newPassword) {
-      return NextResponse.json(
-        { error: 'Token and new password are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Token and new password are required' }, { status: 400 });
     }
 
-    // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    if (newPassword.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+    }
 
-    // Hash the new password
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { email: string };
+    const email = decoded.email;
+
+    await dbConnect();
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Connect to MongoDB
-    const client = new MongoClient(process.env.MONGODB_URI as string);
-    await client.connect();
-    const db = client.db('test'); // Replace with your database name
-    const usersCollection = db.collection('users'); // Replace with your users collection name
-
-    // Get the email from the decoded token
-    const email = (decoded as { email: string }).email;
-
-    // Update the user's password
-    const result = await usersCollection.updateOne(
-      { email },
-      { $set: { password: hashedPassword } }
-    );
-
-    // Close the MongoDB connection
-    await client.close();
+    const result = await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: 'Password has been reset successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'Password has been reset successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error in reset password API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error in reset password:', error);
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 500 });
   }
 }

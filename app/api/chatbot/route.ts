@@ -1,41 +1,75 @@
 import Groq from "groq-sdk";
 import { Pinecone } from '@pinecone-database/pinecone';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
+import { dbConnect } from '@/lib/mongodb';
+import EEGAnalysis from '@/models/EEGAnalysis';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const index = pc.index('neurobuddy-docs');
 
-export async function POST(req: Request) {
+async function getUserId(req: NextRequest): Promise<string | null> {
+  const token = req.cookies.get("token")?.value;
+  if (!token) return null;
   try {
-    const { message, history, neuroHistory } = await req.json();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    return decoded?.id || null;
+  } catch {
+    return null;
+  }
+}
 
-    const current = neuroHistory && neuroHistory.length > 0 ? neuroHistory[0] : null;
+export async function POST(req: NextRequest) {
+  try {
+    const { message, history } = await req.json();
+
+    let current: any = null;
+    const userId = await getUserId(req as any);
+
+    if (userId) {
+      await dbConnect();
+      const latestAnalysis = await EEGAnalysis.findOne({ userId }).sort({ createdAt: -1 });
+      if (latestAnalysis) {
+        current = {
+          focus: latestAnalysis.focus,
+          stress: latestAnalysis.stress,
+          relax: latestAnalysis.relax,
+          disorder: latestAnalysis.disorder,
+          confidence: latestAnalysis.confidence,
+        };
+      }
+    }
+
     const detectedDisorder = current?.disorder?.toLowerCase() || "general";
 
-    // 1. Get Embedding from Flask
-    const embRes = await fetch("http://127.0.0.1:5000/get_embedding", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: message }),
-    });
-    const { vector } = await embRes.json();
+    let embRes;
+    try {
+      embRes = await fetch("http://127.0.0.1:5000/get_embedding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message }),
+      });
+    } catch {
+      console.error("Flask embedding server not available");
+    }
 
-    // 2. Query Pinecone using Specific Namespace
-    const queryResponse = await index.namespace(detectedDisorder).query({
-      vector: vector,
-      topK: 2,
-      includeMetadata: true,
-    });
+    let medicalContext = "";
+    if (embRes?.ok) {
+      const { vector } = await embRes.json();
+      const queryResponse = await index.namespace(detectedDisorder).query({
+        vector: vector,
+        topK: 2,
+        includeMetadata: true,
+      });
+      medicalContext = queryResponse.matches
+        .map((m) => m.metadata?.text)
+        .join("\n\n");
+    }
 
-    const medicalContext = queryResponse.matches
-      .map((m) => m.metadata?.text)
-      .join("\n\n");
-
-    // 3. Construct Augmented Prompt
     const systemPrompt = `
-      You are NeuroBuddy, a brain-aware AI assistant. 
-      USER CURRENT STATE: Focus ${current?.focus}%, Stress ${current?.stress}%, Disorder: ${current?.disorder}.
+      You are NeuroBuddy, a brain-aware AI assistant.
+      USER CURRENT STATE: ${current ? `Focus ${current.focus}%, Stress ${current.stress}%, Relax ${current.relax}%, Disorder: ${current.disorder} (Confidence: ${current.confidence}%)` : "No EEG data available yet."}
 
       VERIFIED MEDICAL CONTEXT FROM OUR DATABASE (Namespace: ${detectedDisorder}):
       ${medicalContext || "No specific guide found in database for this disorder yet."}
@@ -69,8 +103,8 @@ export async function POST(req: Request) {
     });
 
     return new Response(readable, { headers: { 'Content-Type': 'text/event-stream' } });
-  } catch (e) { 
+  } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "RAG Error" }, { status: 500 }); 
+    return NextResponse.json({ error: "RAG Error" }, { status: 500 });
   }
 }
